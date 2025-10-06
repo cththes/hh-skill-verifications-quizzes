@@ -405,21 +405,6 @@ foreign key (customer_id) references customers(id);
 
 
 Вопрос 23.
-Существует таблица, представленная на изображении. В эту таблицу сохраняются данные, журналирующие некоторые действия. После очередного релиза частота вставки записей, где action = 'login', возросла в десять раз. Оперативно релиз починить не удается, но есть доступ к базе данных. Было решено временно не вставлять данные, где action = 'login', сохранив уже существующие записи.
-
-Как этого достичь?
-
-Ответы:
-1. Таблицы нужно объединить через подзапрос
-2. Создать constraint на колонку action, запрещающий 'login'
-3. JOIN не нужен при подсчёте заказов
-4. Создать before insert trigger, запрещающий 'login'
-5. Нельзя использовать JOIN без LIMIT
-
-Выбран 4 ответ.
-
-
-Вопрос 24.
 Какой риск возникает, если пользователь создаёт выраженный индекс на поле, к которому у него нет прав?
 
 CREATE INDEX idx_lower_email ON users (lower(email));
@@ -434,7 +419,7 @@ CREATE INDEX idx_lower_email ON users (lower(email));
 Выбран 3 ответ.
 
 
-Вопрос 25.
+Вопрос 24.
 Вы настраиваете потоковую репликацию PostgreSQL. Какую строку конфигурации необходимо добавить в postgresql.conf на мастере?
 
 Ответы:
@@ -445,3 +430,492 @@ CREATE INDEX idx_lower_email ON users (lower(email));
 5. replication = streaming
 
 Выбран 4 ответ.
+
+
+06.10 (12 правильных ответов из 15)
+Вот дополнительные вопросы и ответы по PostgreSQL:
+
+**Вопрос: 25**
+Какая разница между `TRUNCATE` и `DELETE FROM table`?
+
+**Варианты ответов:**
+- TRUNCATE быстрее и сбрасывает sequences
+- DELETE можно откатить, TRUNCATE нельзя
+- TRUNCATE работает только с пустыми таблицами
+- DELETE освобождает место на диске, TRUNCATE нет
+- Никакой разницы нет
+
+**Правильный ответ:** TRUNCATE быстрее и сбрасывает sequences
+
+---
+
+**Вопрос: 26**
+Что произойдет при выполнении этого запроса?
+
+```sql
+SELECT * FROM users
+WHERE email LIKE '%@gmail.com'
+ORDER BY created_at DESC
+LIMIT 1000;
+```
+
+**Варианты ответов:**
+- Индекс на email будет использован эффективно
+- Index scan по created_at
+- Full table scan, индекс на email не поможет
+- Ошибка синтаксиса
+- Запрос использует bitmap scan
+
+**Правильный ответ:** Full table scan, индекс на email не поможет
+
+---
+
+**Вопрос: 27**
+Для чего используется команда `VACUUM FULL`?
+
+**Варианты ответов:**
+- Освобождает место на диске, возвращая его ОС
+- Обновляет статистику для планировщика
+- Удаляет только dead tuples
+- Создает резервную копию
+- Перестраивает все индексы
+
+**Правильный ответ:** Освобождает место на диске, возвращая его ОС
+
+---
+
+**Вопрос: 28**
+Что делает следующая конфигурация?
+
+```
+work_mem = 256MB
+```
+
+**Варианты ответов:**
+- Устанавливает общий лимит памяти для всех соединений
+- Устанавливает лимит памяти на каждую операцию сортировки/хеширования
+- Устанавливает размер shared_buffers
+- Ограничивает размер временных таблиц
+- Устанавливает максимальный размер запроса
+
+**Правильный ответ:** Устанавливает лимит памяти на каждую операцию сортировки/хеширования
+
+---
+
+**Вопрос: 29**
+В каком случае использование `UNION ALL` предпочтительнее `UNION`?
+
+**Варианты ответов:**
+- Когда нужно удалить дубликаты
+- Когда дубликаты допустимы и важна производительность
+- Когда объединяются более 2 таблиц
+- UNION ALL всегда лучше
+- Разницы нет
+
+**Правильный ответ:** Когда дубликаты допустимы и важна производительность
+
+---
+
+**Вопрос: 30**
+Что означает параметр `FILLFACTOR = 70` при создании таблицы?
+
+**Варианты ответов:**
+- Таблица будет заполнена на 70% случайными данными
+- В каждой странице будет оставлено 30% свободного места для HOT updates
+- Индексы будут занимать 70% от размера таблицы
+- Автовакуум запустится при 70% заполнении
+- Это коэффициент сжатия данных
+
+**Правильный ответ:** В каждой странице будет оставлено 30% свободного места для HOT updates
+
+---
+
+**Вопрос: 31**
+Какой из запросов эффективнее для проверки существования записи?
+
+**Варианты ответов:**
+- `SELECT COUNT(*) FROM users WHERE id = 1`
+- `SELECT * FROM users WHERE id = 1`
+- `SELECT EXISTS(SELECT 1 FROM users WHERE id = 1)`
+- `SELECT id FROM users WHERE id = 1 LIMIT 1`
+- Все одинаково эффективны
+
+**Правильный ответ:** `SELECT EXISTS(SELECT 1 FROM users WHERE id = 1)`
+
+---
+
+**Вопрос: 32**
+Что делает `ANALYZE` команда?
+
+**Варианты ответов:**
+- Удаляет dead tuples
+- Обновляет статистику для планировщика запросов
+- Показывает план выполнения запроса
+- Проверяет целостность индексов
+- Дефрагментирует таблицу
+
+**Правильный ответ:** Обновляет статистику для планировщика запросов
+
+
+06.10 (12 правильных ответов из 15)
+
+**Вопрос: 33**
+Вы добавили триггер на таблицу employees, чтобы логировать каждое изменение зарплаты:
+create or replace function log_salary_update() returns trigger as $$
+begin
+   insert into salary_log(emp_id, old_salary, new_salary, changed_at)
+   values (OLD.id, OLD.salary, NEW.salary, now());
+   return NEW;
+end;
+$$ language plpgsql;
+create trigger trg_salary_update
+after update on employees
+for each row
+when (OLD.salary is distinct from NEW.salary)
+execute function log_salary_update();
+
+Как проверить, что триггер действительно сработал после выполнения:
+update employees set salary = salary + 100 where department_id = 2;
+
+1. Проверить таблицу employees_log
+2. Посмотреть журнал ошибок PostgreSQL
+3. Использовать pg_stat_statements
+4. Выполнить explain update...
+5. Выполнить select * from salary_log where changed_at > now() - interval '1 minute';
+
+Выбрал ответ 1.
+
+
+**Вопрос: 34**
+В системе при удалении пользователя:
+delete from users where id = 123;
+наблюдается задержка. В таблице orders задано:
+foreign key (user_id) references users(id) on delete cascade
+Какой способ поможет оценить влияние каскадного удаления на производительность?
+
+1. Использовать VACUUM FULL на обеих таблицах
+2. Временно удалить каскадный внешний ключ
+3. Выполнить EXPLAIN ANALYZE delete from users where id = 123
+4. Перевести таблицу orders в UNLOGGED
+5. Добавить ON DELETE SET NULL вместо CASCADE
+
+Выбрал ответ 3.
+
+
+**Вопрос: 35**
+Нужно посчитать сумму зарплат по каждому отделу среди активных сотрудников. Какой запрос подойдёт?
+
+1. select department, sum(salary) from employees where active = true group by department
+2. select department, sum(salary) from employees group by salary
+3. select department, sum(salary) from employees order by department
+4. select department, sum(salary) group by department where active = true
+5. select department, salary from employees group by department where active = true
+
+Выбрал ответ 1.
+
+
+**Вопрос: 36**
+Какой параметр нужно включить в postgresql.conf на реплике, чтобы разрешить подключение в режиме только чтения?
+
+1. read_only = true
+2. hot_standby = on
+3. standby_mode = on
+4. slave_read = enable
+5. stream_only = true
+
+Выбрал ответ 2.
+
+
+**Вопрос: 37**
+Разработчик сообщает, что следующая команда INSERT в таблицу users(id primary key, name) иногда "подвисает" в продакшене:
+insert into users (id, name) values (1, 'Ivan')
+Какая команда подходит для анализа причины задержки выполнения?
+
+1. analyze verbose users
+2. select * from pg_stat_activity
+3. explain analyze insert into users (id, name) values (1, 'Ivan')
+4. vacuum analyze users
+5. show transaction_isolation
+
+Выбрал ответ 3.
+
+
+**Вопрос: 38**
+Что вернёт запрос?
+
+select department, count(*)
+from employees
+group by department
+having count(*) > 1;
+
+1. Все департаменты
+2. Ничего, если count(*) не указан в SELECT
+3. Только NULL-записи
+4. Только департаменты, где 1 сотрудник
+5. Только департаменты, где 2 и более сотрудников
+
+Выбрал ответ 5.
+
+
+**Вопрос: 39**
+Вы проектируете процедуру issue_payment(user_id int, amount numeric(5,2)), которая вносит запись в таблицу payouts(amount numeric(5,2)).
+При высоких нагрузках в журнале стали появляться ошибки: numeric field overflow. Анализ показал, что иногда в amount передаётся 999.999. 
+Какая доработка обеспечит устойчивое поведение при сохранении точности и отказоустойчивости?
+
+1. Разрешить округление через set extra_float_digits = 0
+2. Перед вызовом процедуры фильтровать значения на клиенте
+3. Добавить в процедуру amount := round(least(amount, 999.99), 2) и логировать изменения
+4. Обернуть INSERT в BEGIN ... EXCEPTION WHEN OTHERS THEN RAISE NOTICE
+5. Изменить тип поля в таблице на numeric(7,4)
+
+Выбрал ответ 5.
+
+
+**Вопрос: 40**
+Почему при уровне Repeatable Read может произойти ошибка сериализации?
+
+BEGIN;
+SELECT * FROM stock WHERE product_id = 1;
+-- в другом сеансе UPDATE той же строки
+SELECT * FROM stock WHERE product_id = 1;
+COMMIT
+
+1. Потому что другой сеанс изменил строку, нарушив консистентность
+2. Потому что строки были удалены
+3. Потому что product_id стал NULL
+4. Потому что SELECT возвращает дубликаты
+5. Потому что SELECT внутри транзакции вызывает COMMIT
+
+Выбрал ответ 1.
+
+
+**Вопрос: 41**
+Какое влияние окажет добавление индекса на поле created_at в следующем запросе?
+select * from logs where created_at >= now() - interval '1 day'
+
+1. Ускорит выборку при большом объеме данных
+2. Приведет к ошибке времени
+3. Уменьшит размер таблицы
+4. Увеличит количество возвращаемых строк
+5. Увеличит количество операций записи
+
+Выбрал ответ 1.
+
+
+**Вопрос: 42**
+Когда BRIN-индекс предпочтительнее B-Tree, несмотря на его меньшую точность?
+
+1. Когда индекс используется для join'ов
+2. Когда данные хранятся в jsonb
+3. Когда нужно обеспечить уникальность значений
+4. Когда выполняется поиск по точным строковым значениям
+5. Когда таблица содержит большие объёмы данных, отсортированных по индексу
+
+Выбрал ответ 2.
+
+
+**Вопрос: 43**
+Что вернёт запрос?
+
+select name
+from products
+where price > (select avg(price) from products)
+
+1. Ошибка: AVG нельзя использовать в подзапросе
+2. Возвращает товары дороже среднего
+3. Возвращает только товары с NULL
+4. Сравнивает строки, а не числа
+5. Возвращает товары дешевле всех
+
+Выбрал ответ 2.
+
+
+**Вопрос: 44**
+У вас есть таблица users, где поле tags имеет тип text[]. В поле хранятся ключевые слова для фильтрации.
+Вам нужно добавить новый тег vip только тем пользователям, у кого еще нет в массиве.
+Какая из вставок выполнит задачу правильно?
+
+1.update users set tags = array_cat(tags, vip)
+2. update users set tags = tags || vip
+3. update users set tags = tags + vip where vip not in tags
+4. update users set tags = array_append(tags, vip) where not vip = any(tags)
+5. update users set tags = vip where tags is null
+
+Выбрал ответ 4.
+
+
+**Вопрос: 45**
+Что вернёт этот запрос?
+
+select region, count(*)
+from clients
+group by region
+having count(*) > 10
+
+1. Все регионы без фильтрации
+2. Только регионы с более чем 10 клиентами
+3. Только регионы с NULL
+4. Только 10 первых клиентов
+5. Ошибка из-за HAVING
+
+Выбрал ответ 2.
+
+
+06.10 (12 правильных ответов из 15)
+**Вопрос: 46**
+Вы работаете над аналитическим отчётом. Нужно сгруппировать данные по категориям товаров и посчитать среднюю цену в каждой категории. Ваш коллега предложил следующий код:
+
+select product, avg(price)
+from goods
+group by category
+
+Однако этот код не выполняется. Какую доработку следует внести, чтобы получить корректный результат?
+
+Варианты ответа:
+
+1. select category, avg(price) from goods group by category
+2. select product, avg(price) from goods
+3. select avg(price) from goods group by price
+4. select category, avg(price) from goods group by price
+5. select product, price from goods group by category
+
+Выбрал ответ 1.
+
+
+**Вопрос: 47**
+В таблице customers есть поле interests типа text[]. В некоторых строках уже есть значения вроде '{music, travel}'. Вам нужно добавить тег 'sports' только тем клиентам, у кого его нет. Ваш коллега предложил код:
+
+update customers
+set interests = interests || 'sports'
+where not 'sports' = any(interests);
+
+Какой из вариантов корректнее и безопаснее реализует задачу?
+
+1. update customers set interests = array_append(interests, 'sports') where not 'sports' = any(interests)
+2. update customers set interests = interests || 'sports' where interests is null
+3. update customers set interests = 'sports' where interests @> array['sports']
+4. update customers set interests = array_prepend('sports', interests)
+5. update customers set interests = interests || array['sports'] where interests != 'sports'
+
+Выбрал ответ 1.
+
+
+**Вопрос: 48**
+Почему следующий запрос может вернуть больше строк, чем таблица employees?
+
+select *
+from employees e
+left join salaries s on e.id = s.emp_id
+
+Варианты ответа:
+1. Запрос должен содержать DISTINCT
+2. LEFT JOIN всегда возвращает строки дважды
+3. Нельзя использовать ON с LEFT JOIN
+4. Только INNER JOIN гарантирует уникальность
+5. В таблице salaries могут быть дубликаты по emp_id
+
+Выбрал ответ 5.
+
+
+**Вопрос: 49**
+Почему следующий запрос может вернуть больше строк, чем таблица employees?
+
+select *
+from employees e
+left join salaries s on e.id = s.emp_id
+
+Варианты ответа:
+1. Запрос должен содержать DISTINCT
+2. LEFT JOIN всегда возвращает строки дважды
+3. Нельзя использовать ON с LEFT JOIN
+4. Только INNER JOIN гарантирует уникальность
+5. В таблице salaries могут быть дубликаты по emp_id
+
+Выбрал ответ 5.
+
+
+**Вопрос: 50**
+Вы хотите разделить таблицу users на два шарда по регионам. Какой шаг необходим при использовании PostgreSQL c Citus?
+
+Варианты ответа:
+1. Настроить шард-каталог вручную
+2. Установить расширение citus
+3. Создать индекс по колонке region
+4. Выполнить select create_distributed_table('users', 'region')
+5. Переместить все таблицы в новую базу
+
+Выбрал ответ 4.
+
+**Вопрос: 51**
+Почему в PostgreSQL по умолчанию индекс по полю deleted_at не помогает ускорить запрос:
+select * fren users where deleted at is null
+
+Варианты ответа:
+1. deleted at нужно делать PRIMARY KEY
+2. Индекс работает только с числовыми полями
+3. IS NULL нельзя использовать в WHERE
+4. B-Tree индекс не включает NULL значения
+5. NULL B PostgreSQL обрабатывается как О
+
+Выбрал ответ 4.
+
+
+**Вопрос: 52**
+Вы добавили следующий триггер к таблице users, чтобы автоматически заполнять поле created_at, если оно не указано:
+
+create or replace function fill_created_at() returns trigger as $$
+begin
+if NEW.created_at is null then
+NEW.created_at := now();
+end if;
+return NEW;
+end;
+$$ language plpgsql;
+create trigger trg_fill_created_at
+before insert on users
+for each row
+execute function fill created_at();
+
+Как убедиться, что триггер работает корректно?
+
+Варианты ответа:
+1. Удалить колонку created_at
+2. Вставить запись с future timestamp
+3. Посмотреть структуру таблицы через \d users
+4. Выполнить ANALYZE на таблице
+5. Вставить пользователя без указания created_at и проверить, что поле заполнено
+
+Выбрал ответ 5.
+
+
+**Вопрос: 53**
+
+Разработчик применяет такие команды через интерфейс PostgreSQL, не отключая автокоммит:
+1 update orders set status 'shipped' where id = 101;
+2 update inventory set quantity - quantity
+1 where item_id = 55;
+На втором шаге происходит ошибка (например, отрицательное количество на складе).
+К чему приведёт автокоммит в такой ситуации?
+
+Варианты ответа:
+1. Возникнет блокировка таблицы
+2. Обе команды зафиксируются
+3. Первая команда будет зафиксирована, вторую придётся корректировать вручную
+4. Обе команды будут отменены
+5. Только вторая команда не выполнится, первая откатится
+
+Выбрал ответ 4.
+
+
+**Вопрос: 54**
+Почему запрос с != может не использовать индекс?
+select * from payments where status != 'confirmed'
+
+Варианты ответа:
+1. Индексы не работают с текстовыми значениями
+2. != приводит к полному сканированию таблицы
+3. Запрос содержит ошибку
+4. Индексы только для чисел
+5. Индекс работает только с = и N
+
+Выбрал ответ 2.
